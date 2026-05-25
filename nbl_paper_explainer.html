@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBL Paper – Step-by-Step Guide</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3e;
+    --accent: #6c8fff;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --highlight: #1e3a5f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  header { background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%); border-bottom: 1px solid var(--border); padding: 28px 32px 24px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  header p { color: var(--muted); font-size: 0.85rem; }
+  header .authors { margin-top: 6px; font-size: 0.78rem; color: var(--accent2); }
+
+  .layout { display: flex; min-height: calc(100vh - 110px); }
+
+  /* Sidebar */
+  .sidebar { width: 240px; min-width: 240px; background: var(--card); border-right: 1px solid var(--border); padding: 16px 0; overflow-y: auto; }
+  .sidebar-section { padding: 8px 16px 4px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .step-btn { display: flex; align-items: flex-start; gap: 10px; width: 100%; background: none; border: none; color: var(--text); cursor: pointer; padding: 10px 16px; text-align: left; transition: background 0.15s; font-size: 0.82rem; line-height: 1.3; }
+  .step-btn:hover { background: rgba(108,143,255,0.08); }
+  .step-btn.active { background: rgba(108,143,255,0.15); border-right: 3px solid var(--accent); color: var(--accent); }
+  .step-num { font-size: 0.68rem; background: var(--border); border-radius: 4px; padding: 2px 6px; min-width: 24px; text-align: center; font-weight: 700; margin-top: 1px; }
+  .step-btn.active .step-num { background: var(--accent); color: #fff; }
+
+  /* Content */
+  .content { flex: 1; padding: 32px; overflow-y: auto; max-width: 900px; }
+
+  .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; display: none; }
+  .section-card.visible { display: block; }
+
+  .section-card h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+  .section-card .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+
+  .section-card p { color: #c8d0de; line-height: 1.7; margin-bottom: 14px; font-size: 0.9rem; }
+  .section-card p:last-child { margin-bottom: 0; }
+
+  h3 { font-size: 0.95rem; color: var(--accent2); font-weight: 600; margin: 18px 0 8px; }
+  h4 { font-size: 0.85rem; color: var(--accent3); font-weight: 600; margin: 14px 0 6px; }
+
+  .pill { display: inline-block; background: rgba(108,143,255,0.15); color: var(--accent); border: 1px solid rgba(108,143,255,0.3); border-radius: 20px; font-size: 0.72rem; padding: 2px 10px; margin: 2px; font-weight: 600; }
+  .pill.green { background: rgba(52,211,153,0.12); color: var(--accent3); border-color: rgba(52,211,153,0.3); }
+  .pill.purple { background: rgba(167,139,250,0.12); color: var(--accent2); border-color: rgba(167,139,250,0.3); }
+  .pill.orange { background: rgba(251,146,60,0.12); color: var(--accent4); border-color: rgba(251,146,60,0.3); }
+
+  .highlight-box { background: rgba(108,143,255,0.07); border: 1px solid rgba(108,143,255,0.2); border-radius: 8px; padding: 14px 16px; margin: 14px 0; }
+  .highlight-box.green { background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.2); }
+  .highlight-box.purple { background: rgba(167,139,250,0.06); border-color: rgba(167,139,250,0.2); }
+  .highlight-box.orange { background: rgba(251,146,60,0.06); border-color: rgba(251,146,60,0.2); }
+
+  /* Pipeline diagram */
+  .pipeline { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0; }
+  .pipe-box { background: var(--highlight); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 14px; font-size: 0.78rem; font-weight: 600; color: var(--accent); text-align: center; min-width: 90px; }
+  .pipe-arrow { color: var(--muted); font-size: 1.2rem; padding: 0 6px; }
+  .pipe-box.green { background: rgba(52,211,153,0.1); border-color: var(--accent3); color: var(--accent3); }
+  .pipe-box.purple { background: rgba(167,139,250,0.1); border-color: var(--accent2); color: var(--accent2); }
+  .pipe-box.orange { background: rgba(251,146,60,0.1); border-color: var(--accent4); color: var(--accent4); }
+
+  /* Code block */
+  .code-block { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-family: 'Consolas', monospace; font-size: 0.78rem; line-height: 1.6; color: #a8d4ff; margin: 12px 0; overflow-x: auto; }
+  .code-block .comment { color: #6a737d; }
+  .code-block .keyword { color: #ff7b72; }
+  .code-block .fn { color: #d2a8ff; }
+  .code-block .string { color: #a5d6ff; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 12px 0; }
+  th { background: var(--border); color: var(--accent); padding: 8px 12px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 8px 12px; border-bottom: 1px solid rgba(42,45,62,0.6); color: #c8d0de; }
+  tr:hover td { background: rgba(108,143,255,0.04); }
+
+  /* Nav */
+  .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .nav-btn { background: var(--border); color: var(--text); border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-size: 0.82rem; transition: background 0.15s; }
+  .nav-btn:hover { background: var(--accent); color: #fff; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .progress { font-size: 0.75rem; color: var(--muted); }
+
+  .result-row { display: flex; gap: 12px; margin: 10px 0; flex-wrap: wrap; }
+  .result-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; }
+  .result-box .val { font-size: 1.5rem; font-weight: 700; color: var(--accent3); }
+  .result-box .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Neural Codebook Design for MIMO Network Beam Management</h1>
+  <p>A complete step-by-step conceptual breakdown of the paper</p>
+  <div class="authors">Ryan M. Dreifuerst &amp; Robert W. Heath Jr. · IEEE Trans. Wireless Commun. 2025</div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">Background</div>
+    <button class="step-btn active" onclick="show(0)"><span class="step-num">1</span>Problem &amp; Motivation</button>
+    <button class="step-btn" onclick="show(1)"><span class="step-num">2</span>MIMO &amp; Beam Management Basics</button>
+    <button class="step-btn" onclick="show(2)"><span class="step-num">3</span>What is a Codebook?</button>
+
+    <div class="sidebar-section">System Model</div>
+    <button class="step-btn" onclick="show(3)"><span class="step-num">4</span>Network &amp; Signal Model</button>
+    <button class="step-btn" onclick="show(4)"><span class="step-num">5</span>Beam Management Pipeline</button>
+    <button class="step-btn" onclick="show(5)"><span class="step-num">6</span>Beamspace Representation</button>
+
+    <div class="sidebar-section">NBL Algorithm</div>
+    <button class="step-btn" onclick="show(6)"><span class="step-num">7</span>NBL Architecture</button>
+    <button class="step-btn" onclick="show(7)"><span class="step-num">8</span>Training &amp; Loss Function</button>
+    <button class="step-btn" onclick="show(8)"><span class="step-num">9</span>Differentiability Tricks</button>
+
+    <div class="sidebar-section">Key Functions</div>
+    <button class="step-btn" onclick="show(9)"><span class="step-num">10</span>Communication Block Functions</button>
+    <button class="step-btn" onclick="show(10)"><span class="step-num">11</span>DFT &amp; Baseline Codebooks</button>
+    <button class="step-btn" onclick="show(11)"><span class="step-num">12</span>MU-MIMO &amp; RZF Precoding</button>
+
+    <div class="sidebar-section">Evaluation</div>
+    <button class="step-btn" onclick="show(12)"><span class="step-num">13</span>Dataset &amp; Ray Tracing</button>
+    <button class="step-btn" onclick="show(13)"><span class="step-num">14</span>Results &amp; Key Findings</button>
+    <button class="step-btn" onclick="show(14)"><span class="step-num">15</span>Notebook Walkthrough</button>
+  </nav>
+
+  <main class="content">
+
+    <!-- STEP 0 -->
+    <div class="section-card visible" id="s0">
+      <h2>🎯 Step 1 — Problem &amp; Motivation</h2>
+      <div class="subtitle">Why is this paper needed?</div>
+      <p>Modern 5G and beyond-5G networks use <strong>massive MIMO</strong> — base stations equipped with dozens to hundreds of antennas — to serve many users simultaneously. To exploit those antennas, the network must <em>steer beams</em> toward each user. Doing this efficiently requires knowing the channel (how signals travel from BS to UE), but obtaining that channel state information (CSI) is expensive in time and bandwidth.</p>
+      <div class="highlight-box">
+        <strong>Core challenge:</strong> You cannot just try every possible beam direction — with hundreds of antennas and many users across many cells, the search space is enormous. You need a <em>codebook</em>: a pre-selected finite set of beam directions to search over.
+      </div>
+      <h3>Three interlinked problems the paper solves</h3>
+      <p><span class="pill">Problem 1</span> Traditional codebooks (DFT-based) are designed for a single cell assuming a uniform user distribution, ignoring site-specific geometry.</p>
+      <p><span class="pill orange">Problem 2</span> Beam management links together initial access, channel sounding (CSI-RS), and data precoding. Prior work optimizes each stage in isolation — ignoring dependencies.</p>
+      <p><span class="pill purple">Problem 3</span> Multi-cell interference is ignored. A codebook optimal for one sector may cause heavy interference in neighbouring cells.</p>
+      <div class="highlight-box green">
+        <strong>The paper's answer: NBL</strong> — Network Beamspace Learning. A single end-to-end neural network that jointly designs SSB and CSI-RS codebooks across all cells, trained on ray-traced site-specific channels to maximise spectral efficiency while suppressing inter-cell interference.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" disabled>← Prev</button><span class="progress">1 / 15</span><button class="nav-btn" onclick="show(1)">Next →</button></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="section-card" id="s1">
+      <h2>📡 Step 2 — MIMO &amp; Beam Management Basics</h2>
+      <div class="subtitle">The physical layer foundation</div>
+      <h3>What is Massive MIMO?</h3>
+      <p>A base station with a large antenna array (e.g., 64, 128, or 256 elements) can form narrow, high-gain beams that simultaneously serve many users on the same time/frequency resources, multiplying capacity. This is called <strong>spatial multiplexing</strong>.</p>
+      <h3>The Beam Management Framework (5G NR)</h3>
+      <div class="pipeline">
+        <div class="pipe-box">SSB Sweep<br/><small>Initial Access</small></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box green">CSI-RS<br/><small>Refinement</small></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box purple">CSI Report<br/><small>Feedback</small></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box orange">Data TX<br/><small>Precoding</small></div>
+      </div>
+      <h4>Stage 1 — SSB (Synchronisation Signal Block)</h4>
+      <p>The BS sweeps beams sequentially. Each UE measures the received signal power (RSRP) and reports back the index of the best beam. This narrows down the beam direction coarsely. The codebook used here is the <strong>SSB codebook</strong>.</p>
+      <h4>Stage 2 — CSI-RS (Channel State Information Reference Signal)</h4>
+      <p>Using the best SSB beam index as context, the BS sends a denser set of reference signals to refine the channel estimate. The <strong>CSI-RS codebook</strong> can be conditional on the SSB result. The UE feeds back a beam index (Type I) or quantized coefficients (Type II).</p>
+      <h4>Stage 3 — MU-MIMO Data Transmission</h4>
+      <p>The BS uses the estimated channels to compute a <strong>precoding matrix</strong> (e.g., Regularized Zero-Forcing) that simultaneously serves multiple users while suppressing inter-user interference.</p>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(0)">← Prev</button><span class="progress">2 / 15</span><button class="nav-btn" onclick="show(2)">Next →</button></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="section-card" id="s2">
+      <h2>📖 Step 3 — What is a Codebook?</h2>
+      <div class="subtitle">The design variable at the heart of the paper</div>
+      <p>A <strong>codebook</strong> is a finite set of beamforming vectors (or matrices) <strong>W = {w₁, w₂, …, wₙ}</strong>. Each vector wᵢ ∈ ℂᴹ specifies the complex weights (amplitude + phase) applied to each of the M antenna elements.</p>
+      <div class="highlight-box">
+        <strong>Physical intuition:</strong> Each codebook entry steers a beam in a particular direction. By carefully choosing phases across the array you can reinforce signals in one direction while cancelling others — this is beamforming.
+      </div>
+      <h3>Traditional DFT Codebook</h3>
+      <p>The standard approach uses the Discrete Fourier Transform (DFT) to create uniformly-spaced beams across angular space. For a Uniform Linear Array (ULA) with M elements:</p>
+      <div class="code-block">
+<span class="comment"># DFT codebook — N beams for M antennas</span>
+wₙ = (1/√M) · [1, e^(j2π·n/N), e^(j4π·n/N), …, e^(j2π·n(M-1)/N)]
+
+<span class="comment"># The full codebook matrix W is the DFT matrix</span>
+<span class="comment"># Pros: simple, hardware-friendly, no training needed</span>
+<span class="comment"># Cons: uniform grid ignores real site geometry &amp; user distribution</span>
+      </div>
+      <h3>Learned (NBL) Codebook</h3>
+      <p>Instead of a fixed grid, NBL treats the codebook entries as <strong>learnable parameters</strong> of a neural network. They are updated via gradient descent to maximise spectral efficiency on real ray-traced channel data from the deployment site.</p>
+      <table>
+        <tr><th>Property</th><th>DFT Codebook</th><th>NBL Codebook</th></tr>
+        <tr><td>Design</td><td>Analytic formula</td><td>Gradient descent</td></tr>
+        <tr><td>Site-specific</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Interference-aware</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Hardware constraint</td><td>Phase-only</td><td>Enforced via projection</td></tr>
+        <tr><td>Transfer to new site</td><td>Immediate</td><td>Fine-tune needed</td></tr>
+      </table>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(1)">← Prev</button><span class="progress">3 / 15</span><button class="nav-btn" onclick="show(3)">Next →</button></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="section-card" id="s3">
+      <h2>🌐 Step 4 — Network &amp; Signal Model</h2>
+      <div class="subtitle">Mathematical setup of the multi-cell system</div>
+      <h3>System Parameters</h3>
+      <p>The paper considers a multi-cell network with B base stations each having M antennas (hybrid architecture: M_RF RF chains, M antennas). Each cell serves K single-antenna UEs simultaneously. The channel is modelled over F OFDM subcarriers.</p>
+      <h3>Received Signal (SSB Phase)</h3>
+      <div class="highlight-box purple">
+        <strong>y_k = H_k · f_n · s + interference + noise</strong><br/>
+        <small>where H_k ∈ ℂ^(F×M) is the channel, f_n is the nth SSB codebook vector, s is the pilot symbol.</small>
+      </div>
+      <h3>RSRP Measurement</h3>
+      <p>The UE measures the Reference Signal Received Power for each codebook beam. This is the key measurement used by the neural network as its input (beamspace observations):</p>
+      <div class="code-block">
+<span class="comment"># RSRP for beam n, user k (averaged over subcarriers)</span>
+RSRP(k, n) = (1/F) · Σ_f |H_k[f] · f_n|²
+
+<span class="comment"># The full beamspace vector for user k:</span>
+r_k = [RSRP(k,1), RSRP(k,2), …, RSRP(k,N)]  <span class="comment"># shape: (N,)</span>
+      </div>
+      <h3>Hybrid Beamforming Constraint</h3>
+      <p>In a hybrid architecture, the total precoder is factored as <strong>F = F_RF · F_BB</strong> where F_RF is an analog phase-shifter network (constant-modulus, phase-only) and F_BB is a digital baseband precoder. This constraint limits what codebook entries are physically realizable.</p>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(2)">← Prev</button><span class="progress">4 / 15</span><button class="nav-btn" onclick="show(4)">Next →</button></div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="section-card" id="s4">
+      <h2>🔄 Step 5 — Full Beam Management Pipeline</h2>
+      <div class="subtitle">End-to-end flow from channel to spectral efficiency</div>
+      <div class="pipeline" style="flex-direction:column; align-items:flex-start; gap:4px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box" style="width:200px;">1. Channel H (ray-traced)</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box green" style="width:200px;">2. SSB RSRP measurements</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box purple" style="width:200px;">3. Beamspace → NN input</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box" style="width:200px;">4. NBL neural network</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box orange" style="width:200px;">5. Select CSI-RS beams</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box green" style="width:200px;">6. CSI-RS RSRP → refine</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box purple" style="width:200px;">7. RZF / MU-MIMO precoder</div><span class="pipe-arrow">↓</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div class="pipe-box orange" style="width:200px;">8. Spectral efficiency (loss)</div></div>
+      </div>
+      <h3>Key Design Insight</h3>
+      <p>Steps 2–7 must all be <strong>differentiable</strong> with respect to the codebook weights for end-to-end training. Several operations (argmax for beam selection, matrix inversion for RZF) are not natively differentiable, which is why the paper introduces several mathematical tricks (see Steps 8–9).</p>
+      <div class="highlight-box">
+        <strong>Shared information between cells:</strong> Each BS only shares its SSB codebook (not full CSI) with neighbours. This makes the algorithm practical — the inter-cell coordination overhead is minimal yet interference is still mitigated through joint codebook design.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(3)">← Prev</button><span class="progress">5 / 15</span><button class="nav-btn" onclick="show(5)">Next →</button></div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="section-card" id="s5">
+      <h2>🔭 Step 6 — Beamspace Representation</h2>
+      <div class="subtitle">Compressing channel information into a learnable input format</div>
+      <p>The neural network does not receive the raw channel matrix H (which would require full CSI feedback — expensive). Instead it receives the <strong>beamspace observation</strong>: the vector of RSRP measurements across all codebook beams.</p>
+      <h3>Converting to Beamspace (tf_deconvert_beamspace)</h3>
+      <p>The function <code>tf_deconvert_beamspace</code> transforms the analog beamspace RSRP measurements back into a form suitable for digital precoding. It effectively projects the beamspace observation onto the channel subspace using the codebook as a basis.</p>
+      <div class="code-block">
+<span class="comment"># Conceptually:</span>
+<span class="comment"># beamspace_obs shape: (batch, N_beams)</span>
+<span class="comment"># codebook W shape: (M_antennas, N_beams)</span>
+
+<span class="comment"># Reconstructed effective channel estimate:</span>
+H_eff ≈ W · diag(beamspace_obs) · W^H   <span class="comment"># (M × M)</span>
+      </div>
+      <h3>Why Beamspace?</h3>
+      <p><span class="pill">Benefit 1</span> Dimensionality reduction: N_beams ≪ M × F (full channel size)</p>
+      <p><span class="pill green">Benefit 2</span> Privacy: no raw channel shared between cells</p>
+      <p><span class="pill purple">Benefit 3</span> Hardware compatible: RSRP is what UEs already measure and report in 5G NR</p>
+      <div class="highlight-box green">
+        <strong>Key paper insight:</strong> By designing the SSB codebook (which determines what the beamspace looks like) jointly with the downstream CSI-RS selection and precoding, the network learns to embed maximally useful information in the beamspace representation for its own downstream tasks.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(4)">← Prev</button><span class="progress">6 / 15</span><button class="nav-btn" onclick="show(6)">Next →</button></div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="section-card" id="s6">
+      <h2>🧠 Step 7 — NBL Neural Network Architecture</h2>
+      <div class="subtitle">What the model looks like and what it outputs</div>
+      <h3>Inputs</h3>
+      <p>For each user k, the NN receives the beamspace observation vector r_k (N-dimensional RSRP measurements from the SSB sweep). For a multi-cell setup, this may include RSRP from neighbouring cells' SSB beams too.</p>
+      <h3>Two-headed output</h3>
+      <div class="result-row">
+        <div class="result-box">
+          <div class="val" style="font-size:1rem;">Head 1</div>
+          <div class="lbl">SSB Codebook W_SSB<br/>Shared globally across all users</div>
+        </div>
+        <div class="result-box">
+          <div class="val" style="font-size:1rem;">Head 2</div>
+          <div class="lbl">CSI-RS Codebook W_CSI<br/>Conditionally selected per user</div>
+        </div>
+      </div>
+      <h3>Architecture Details</h3>
+      <p>The network uses fully-connected layers with ReLU activations. The output layer produces complex-valued codebook entries, which are then projected onto the feasible set (unit-modulus constraint for analog beamforming) using a <strong>phase-normalization</strong> operation: w = e^(j·angle(w_raw)).</p>
+      <h3>Multi-cell coordination</h3>
+      <p>In the network setting, each BS's NN shares a <em>common SSB codebook</em> as a global parameter. The CSI-RS codebook selection is local but trained with a loss that penalises inter-cell interference, encouraging the network to learn complementary beams across sectors.</p>
+      <div class="highlight-box purple">
+        <strong>Parameter efficiency:</strong> The SSB codebook has M×N_SSB complex parameters. For M=64, N=16 that is ~2,048 learnable values. This is extremely compact compared to deep channel estimation networks.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(5)">← Prev</button><span class="progress">7 / 15</span><button class="nav-btn" onclick="show(7)">Next →</button></div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="section-card" id="s7">
+      <h2>📉 Step 8 — Training &amp; Loss Function</h2>
+      <div class="subtitle">What the network optimises and how</div>
+      <h3>Primary Loss: Negative Spectral Efficiency</h3>
+      <div class="highlight-box">
+        <strong>ℒ = −SE_network = −(1/K) Σ_k log₂(1 + SINR_k)</strong><br/>
+        <small>The network maximises the average per-user achievable rate (Shannon capacity formula) across the entire multi-cell network.</small>
+      </div>
+      <h3>SINR (Signal-to-Interference-plus-Noise Ratio)</h3>
+      <div class="code-block">
+SINR_k = |h_k^H · p_k|² / (σ² + Σ_{j≠k} |h_k^H · p_j|²)
+
+<span class="comment"># h_k = effective channel for user k</span>
+<span class="comment"># p_k = precoding vector for user k (from RZF)</span>
+<span class="comment"># σ² = noise power</span>
+<span class="comment"># Interference comes from other users AND other cells</span>
+      </div>
+      <h3>Auxiliary Beam Alignment Loss</h3>
+      <p>To help convergence, an auxiliary loss encourages the selected beam to have maximum overlap with the true channel direction. This is the <strong>beam alignment accuracy</strong> metric (fraction of users whose selected beam maximises their true RSRP).</p>
+      <h3>Training procedure</h3>
+      <p><span class="pill">Step 1</span> Generate a batch of ray-traced channel samples H for random UE positions.</p>
+      <p><span class="pill green">Step 2</span> Forward pass: compute beamspace → select CSI-RS beams → estimate channels → compute RZF precoder → compute SINR → compute SE.</p>
+      <p><span class="pill purple">Step 3</span> Backward pass: backpropagate through the entire differentiable pipeline to update codebook weights.</p>
+      <p><span class="pill orange">Step 4</span> Project codebook weights onto unit-modulus constraint after each gradient step.</p>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(6)">← Prev</button><span class="progress">8 / 15</span><button class="nav-btn" onclick="show(8)">Next →</button></div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="section-card" id="s8">
+      <h2>⚙️ Step 9 — Differentiability Tricks</h2>
+      <div class="subtitle">Making non-differentiable operations trainable</div>
+      <h3>Problem 1: Argmax (beam selection) is not differentiable</h3>
+      <p>Selecting the best beam requires an argmax over RSRP values — a discrete, non-differentiable operation. The paper uses a <strong>Straight-Through Estimator (STE)</strong>:</p>
+      <div class="code-block">
+<span class="comment"># Forward pass: use hard argmax (discrete selection)</span>
+selected = tf.one_hot(tf.argmax(rsrp, axis=-1), depth=N)
+
+<span class="comment"># Backward pass: treat as identity (gradient passes through)</span>
+<span class="keyword">@tf.custom_gradient</span>
+<span class="keyword">def</span> <span class="fn">straight_through_argmax</span>(x):
+    y = tf.one_hot(tf.argmax(x, axis=-1), depth=x.shape[-1])
+    <span class="keyword">def</span> <span class="fn">grad</span>(dy): <span class="keyword">return</span> dy  <span class="comment"># pass gradient as-is</span>
+    <span class="keyword">return</span> y, grad
+      </div>
+      <p>This is what the notebook's <strong>TensorFlow Gradient Shim</strong> (re-implementing <code>tf.grad_pass_through</code>) provides in Phase 2.</p>
+      <h3>Problem 2: Matrix inversion (RZF precoder) can explode gradients</h3>
+      <p>Regularized Zero-Forcing requires inverting a matrix: <strong>P = H^H(HH^H + αI)⁻¹</strong>. The regularisation parameter α prevents numerical instability and also keeps gradients well-behaved during training.</p>
+      <h3>Problem 3: tf.grad_pass_through removed in TF 2.16+</h3>
+      <p>The notebook's compatibility patch re-implements this function using <code>@tf.custom_gradient</code>, which is the modern TF API for defining custom backward passes. This is purely a software compatibility fix — the math is identical.</p>
+      <div class="highlight-box orange">
+        <strong>Why this matters for the code:</strong> Cell 2 in the notebook applies all three patches before any model code runs. If you skip these patches, the training loop will crash on non-differentiable operations or raise deprecated-API errors.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(7)">← Prev</button><span class="progress">9 / 15</span><button class="nav-btn" onclick="show(9)">Next →</button></div>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="section-card" id="s9">
+      <h2>🔧 Step 10 — Communication Block Functions (Cell 5)</h2>
+      <div class="subtitle">The colleague handoff — what each function does</div>
+      <p>Cell 5 contains stubs that need to be replaced with full implementations. Here is what each function is for:</p>
+      <h3>Differentiable Training Path</h3>
+      <table>
+        <tr><th>Function</th><th>Role</th></tr>
+        <tr><td><code>tf_deconvert_beamspace</code></td><td>Reconstruct effective channel estimate from beamspace RSRP observations using the codebook as a basis. Used in the forward pass during training.</td></tr>
+        <tr><td><code>tf_rsrp_rx_comb</code></td><td>Compute received RSRP by combining the channel H with a set of receive combining vectors. Returns the power measurement per beam per user.</td></tr>
+      </table>
+      <h3>Evaluation-only Functions</h3>
+      <table>
+        <tr><th>Function</th><th>Role</th></tr>
+        <tr><td><code>tf_get_RZF</code></td><td>Compute the Regularized Zero-Forcing precoder: <strong>P = H^H(HH^H + αI)⁻¹</strong>. Used at evaluation time to compute achievable rates from the estimated channels.</td></tr>
+        <tr><td><code>tf_MU_MIMO_Opt</code></td><td>Multi-User MIMO optimisation. Given estimated channel matrices for all users, compute the optimal precoding allocation and return per-user SINR/rates.</td></tr>
+      </table>
+      <div class="highlight-box">
+        <strong>Integration note:</strong> These functions are TensorFlow-native (using <code>tf.linalg</code> for matrix ops) so they can participate in the <code>tf.GradientTape</code> training loop. The evaluation-only functions can use eager numpy-style ops since they run outside the tape.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(8)">← Prev</button><span class="progress">10 / 15</span><button class="nav-btn" onclick="show(10)">Next →</button></div>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="section-card" id="s10">
+      <h2>📐 Step 11 — DFT &amp; Baseline Codebooks</h2>
+      <div class="subtitle">What NBL is benchmarked against</div>
+      <h3>DFT_codebook function</h3>
+      <p>The DFT codebook is the primary baseline. For a ULA with M antennas and N beams:</p>
+      <div class="code-block">
+<span class="keyword">def</span> <span class="fn">DFT_codebook</span>(M, N):
+    <span class="comment"># Create N uniformly-spaced beams over [-90°, +90°]</span>
+    angles = np.linspace(-1, 1, N)  <span class="comment"># spatial frequencies</span>
+    steering = np.exp(1j * np.pi * np.outer(np.arange(M), angles))
+    <span class="keyword">return</span> steering / np.sqrt(M)  <span class="comment"># normalised, shape (M, N)</span>
+      </div>
+      <h3>Other Baselines in the Paper</h3>
+      <table>
+        <tr><th>Codebook</th><th>Description</th><th>Limitation</th></tr>
+        <tr><td>DFT (uniform)</td><td>Equal angular spacing, no site knowledge</td><td>Ignores user clustering &amp; interference</td></tr>
+        <tr><td>DFT (oversampled)</td><td>More beams than RF chains</td><td>Still uniform, no geometry</td></tr>
+        <tr><td>Random</td><td>Gaussian random weights, projected</td><td>Lower bound — no structure</td></tr>
+        <tr><td>Genie / Oracle</td><td>True channel known, optimal beam</td><td>Upper bound — not practical</td></tr>
+        <tr><td><strong>NBL</strong></td><td>Learned end-to-end</td><td>Requires training data</td></tr>
+      </table>
+      <div class="highlight-box green">
+        <strong>Key result:</strong> NBL outperforms DFT by <strong>over 10 dB</strong> in beam alignment accuracy and achieves <strong>&gt;25% improvement</strong> in network spectral efficiency — approaching the oracle upper bound.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(9)">← Prev</button><span class="progress">11 / 15</span><button class="nav-btn" onclick="show(11)">Next →</button></div>
+    </div>
+
+    <!-- STEP 11 -->
+    <div class="section-card" id="s11">
+      <h2>🧮 Step 12 — MU-MIMO &amp; RZF Precoding</h2>
+      <div class="subtitle">How the data transmission stage works</div>
+      <h3>Multi-User MIMO (MU-MIMO)</h3>
+      <p>After beam management, the BS has an estimate of each user's channel vector h_k ∈ ℂᴹ. It stacks these into a channel matrix H = [h₁, h₂, …, h_K]^H ∈ ℂ^(K×M). The goal is to transmit K independent data streams simultaneously.</p>
+      <h3>Regularized Zero-Forcing (RZF)</h3>
+      <div class="code-block">
+<span class="comment"># tf_get_RZF implementation concept:</span>
+<span class="keyword">def</span> <span class="fn">tf_get_RZF</span>(H, alpha):
+    <span class="comment"># H: (batch, K, M) complex channel matrix</span>
+    Hh = tf.linalg.adjoint(H)  <span class="comment"># (batch, M, K)</span>
+    HHh = tf.matmul(H, Hh)    <span class="comment"># (batch, K, K)</span>
+    reg = alpha * tf.eye(K)    <span class="comment"># regularisation</span>
+    P = tf.matmul(Hh, tf.linalg.inv(HHh + reg))
+    <span class="comment"># Normalise columns to satisfy power constraint</span>
+    <span class="keyword">return</span> P / tf.norm(P, axis=1, keepdims=True)
+      </div>
+      <h3>tf_MU_MIMO_Opt</h3>
+      <p>This function wraps RZF precoding with user scheduling: it selects which K users to serve (out of all active UEs) and computes the per-user SINR and achievable rate. At evaluation time, it loops over candidate user subsets and picks the one maximising sum rate.</p>
+      <div class="highlight-box purple">
+        <strong>Why RZF and not something more complex?</strong> RZF provides a good trade-off between performance and computational tractability. It's also differentiable (matrix inversion is differentiable), making it compatible with the end-to-end training gradient flow.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(10)">← Prev</button><span class="progress">12 / 15</span><button class="nav-btn" onclick="show(12)">Next →</button></div>
+    </div>
+
+    <!-- STEP 12 -->
+    <div class="section-card" id="s12">
+      <h2>🗺️ Step 13 — Dataset &amp; Ray Tracing</h2>
+      <div class="subtitle">How realistic channel data is generated</div>
+      <h3>Sionna + Mitsuba Ray Tracing</h3>
+      <p>The paper uses <strong>Sionna</strong> (NVIDIA's open-source physical layer library) with the <strong>Mitsuba 3</strong> renderer as its ray-tracing backend. This generates physically accurate channels by simulating multipath propagation in a 3D model of the deployment area.</p>
+      <div class="pipeline">
+        <div class="pipe-box">3D Scene<br/><small>Buildings, terrain</small></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box green">Ray Tracer<br/><small>Mitsuba 3</small></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box purple">CIR<br/><small>Paths &amp; delays</small></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box orange">OFDM Channel H<br/><small>(K×M×F)</small></div>
+      </div>
+      <h3>Dataset Configuration (Cell 4)</h3>
+      <table>
+        <tr><th>Parameter</th><th>Setting</th><th>Notes</th></tr>
+        <tr><td>GENERATE_DATASET</td><td>True / False</td><td>Set False to load existing .pkl</td></tr>
+        <tr><td>Eval samples</td><td>2,000</td><td>Ray-traced channel realisations</td></tr>
+        <tr><td>BATCH_SIZE</td><td>64</td><td>Reduce if OOM</td></tr>
+        <tr><td>EVAL_PICKLE_PATH</td><td>Your path</td><td>Pre-generated dataset file</td></tr>
+        <tr><td>OUTPUT_DIR</td><td>Your writable path</td><td>Where results are saved</td></tr>
+      </table>
+      <div class="highlight-box orange">
+        <strong>Why ray tracing vs statistical models?</strong> Statistical models (e.g., 3GPP CDL) assume generic propagation. Ray tracing captures site-specific effects — building reflections, diffraction around corners, LOS/NLOS transitions — which is exactly the geometry NBL learns to exploit.
+      </div>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(11)">← Prev</button><span class="progress">13 / 15</span><button class="nav-btn" onclick="show(13)">Next →</button></div>
+    </div>
+
+    <!-- STEP 13 -->
+    <div class="section-card" id="s13">
+      <h2>📊 Step 14 — Results &amp; Key Findings</h2>
+      <div class="subtitle">What the paper proves and by how much</div>
+      <div class="result-row">
+        <div class="result-box">
+          <div class="val">&gt;10 dB</div>
+          <div class="lbl">Beam alignment improvement vs DFT codebook</div>
+        </div>
+        <div class="result-box">
+          <div class="val">&gt;25%</div>
+          <div class="lbl">Improvement in network spectral efficiency</div>
+        </div>
+        <div class="result-box">
+          <div class="val">≈Oracle</div>
+          <div class="lbl">NBL approaches perfect-CSI upper bound</div>
+        </div>
+      </div>
+      <h3>Finding 1: Beam Alignment Accuracy</h3>
+      <p>The DFT codebook misses the optimal beam direction for a large fraction of users — especially those near cell edges or in clustered urban environments. NBL learns to concentrate its beams where users actually are, reducing miss rate dramatically.</p>
+      <h3>Finding 2: Interference Mitigation</h3>
+      <p>Because NBL is trained with a multi-cell loss, it learns to steer its SSB beams away from directions that would cause strong interference to adjacent cells. DFT beams, being uniform, create high inter-cell interference at sector boundaries.</p>
+      <h3>Finding 3: Transfer Learning</h3>
+      <p>A codebook trained on one city/scenario can be fine-tuned to a new deployment with limited data, retaining most of its performance advantage over DFT baselines.</p>
+      <h3>Finding 4: Scalability</h3>
+      <p>The performance gains are larger for bigger arrays (128, 256 antennas) — the richer beamforming degrees of freedom give NBL more room to outperform the rigid DFT structure.</p>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(12)">← Prev</button><span class="progress">14 / 15</span><button class="nav-btn" onclick="show(14)">Next →</button></div>
+    </div>
+
+    <!-- STEP 14 -->
+    <div class="section-card" id="s14">
+      <h2>💻 Step 15 — Notebook Walkthrough (Cell by Cell)</h2>
+      <div class="subtitle">Mapping the paper sections to the code</div>
+      <table>
+        <tr><th>Cell</th><th>What it does</th><th>Paper section</th></tr>
+        <tr><td>Cell 1</td><td>Install tensorflow, sionna, mitsuba. <em>Restart kernel after.</em></td><td>Implementation setup</td></tr>
+        <tr><td>Cell 2</td><td>Apply 3 compatibility patches: np.infty fix, sionna circular import fix, tf.grad_pass_through shim.</td><td>§ Implementation</td></tr>
+        <tr><td>Cell 3</td><td>Core imports: TF, Sionna, NumPy, etc.</td><td>—</td></tr>
+        <tr><td>Cell 4</td><td>Config: OUTPUT_DIR, EVAL_PICKLE_PATH, GENERATE_DATASET, BATCH_SIZE.</td><td>§ Simulations setup</td></tr>
+        <tr><td>Cell 5</td><td><strong>Communications block.</strong> Drop in: tf_deconvert_beamspace, tf_rsrp_rx_comb, tf_get_RZF, tf_MU_MIMO_Opt, DFT_codebook.</td><td>§ System model, §14</td></tr>
+        <tr><td>Cell 6–10</td><td>NBL model definition, training loop, codebook projection.</td><td>§ NBL Algorithm</td></tr>
+        <tr><td>Cell 11–13</td><td>Dataset loading / generation via Sionna ray tracing.</td><td>§ Simulation Setup</td></tr>
+        <tr><td>Cell 14+</td><td>Evaluation: compute beam alignment accuracy, spectral efficiency; plot results.</td><td>§ Results</td></tr>
+      </table>
+      <h3>Critical Execution Order</h3>
+      <div class="highlight-box orange">
+        <strong>1.</strong> Run Cell 1 → restart kernel (mandatory — Sionna patches kernel-level TF ops)<br/>
+        <strong>2.</strong> Run Cell 2 immediately (patches must be applied before <code>import sionna</code>)<br/>
+        <strong>3.</strong> Only then run Cells 3+. Never <code>import sionna</code> before Cell 2 patches are active.
+      </div>
+      <h3>Summary</h3>
+      <p>The paper's central contribution — NBL — is elegant: treat the codebook itself as a neural network parameter, feed it ray-traced channels, and train end-to-end with spectral efficiency as the loss. The result is a compact, site-specific codebook that outperforms decades of analytic codebook design by learning the geometry of the actual deployment.</p>
+      <div class="nav-bar"><button class="nav-btn" onclick="show(13)">← Prev</button><span class="progress">15 / 15</span><button class="nav-btn" disabled>Done ✓</button></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function show(idx) {
+    document.querySelectorAll('.section-card').forEach((c,i) => {
+      c.classList.toggle('visible', i === idx);
+    });
+    document.querySelectorAll('.step-btn').forEach((b,i) => {
+      b.classList.toggle('active', i === idx);
+    });
+    document.querySelector('.content').scrollTop = 0;
+  }
+</script>
+</body>
+</html>
